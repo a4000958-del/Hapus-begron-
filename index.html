@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GlassBG — Premium Background Remover</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Font & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- App Container -->
+    <div class="app-container">
+        
+        <!-- Header -->
+        <header class="app-header">
+            <div class="brand">
+                <div class="logo-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                <h1>Glass<span>BG</span></h1>
+            </div>
+            <button id="themeToggle" class="btn-icon" title="Ubah Tema">
+                <i class="fa-solid fa-moon"></i>
+            </button>
+        </header>
+
+        <!-- Main Content -->
+        <main class="app-main">
+            
+            <!-- Left Side: Upload & Workspace -->
+            <section class="workspace-section">
+                <!-- Dropzone Area -->
+                <div id="dropzone" class="dropzone active">
+                    <input type="file" id="fileInput" accept="image/png, image/jpeg, image/jpg, image/webp" hidden>
+                    <div class="dropzone-content">
+                        <div class="icon-box"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+                        <h3>Tarik & Lepas Gambar di Sini</h3>
+                        <p>atau klik untuk memilih file dari perangkat</p>
+                        <span class="file-info">Mendukung PNG, JPEG, WebP (Maks. 10MB)</span>
+                    </div>
+                </div>
+
+                <!-- Editor Editor (Hidden by default) -->
+                <div id="editorView" class="editor-view hidden">
+                    <div class="editor-toolbar">
+                        <div class="tool-group">
+                            <button id="btnUndo" class="btn-secondary" disabled><i class="fa-solid fa-rotate-left"></i> Undo</button>
+                            <button id="btnReset" class="btn-danger"><i class="fa-solid fa-trash-can"></i> Reset</button>
+                        </div>
+                        <div class="tool-group">
+                            <button id="btnZoomIn" class="btn-icon-sm"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
+                            <button id="btnZoomOut" class="btn-icon-sm"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- Comparison Slider Container -->
+                    <div class="canvas-container">
+                        <div id="imageSlider" class="image-slider">
+                            <div class="image-before">
+                                <img id="imgBefore" src="" alt="Sebelum">
+                            </div>
+                            <div class="image-after">
+                                <!-- Canvas untuk memanipulasi background -->
+                                <div class="canvas-wrapper" id="canvasWrapper">
+                                    <canvas id="mainCanvas"></canvas>
+                                </div>
+                            </div>
+                            <div class="slider-handle"><i class="fa-solid fa-arrows-left-right"></i></div>
+                        </div>
+                        
+                        <!-- Processing Loader -->
+                        <div id="processingLoader" class="loader-overlay hidden">
+                            <div class="glass-loader">
+                                <div class="spinner"></div>
+                                <h4>Memproses AI...</h4>
+                                <div class="progress-bar"><div id="progressFill"></div></div>
+                                <p id="progressStatus">Menginisialisasi modul...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Side: Control Panel (Hidden when idle) -->
+            <aside id="controlPanel" class="control-panel locked">
+                <div class="panel-block">
+                    <h2><i class="fa-solid fa-sliders"></i> Pengaturan & Background</h2>
+                    <p class="panel-subtitle">Sesuaikan hasil akhir gambar Anda</p>
+                </div>
+
+                <!-- Tabs Ganti Background -->
+                <div class="control-group">
+                    <label class="group-title">Tipe Background</label>
+                    <div class="bg-tabs">
+                        <button class="tab-btn active" data-tab="transparent"><i class="fa-solid fa-border-none"></i> Transparan</button>
+                        <button class="tab-btn" data-tab="color"><i class="fa-solid fa-palette"></i> Warna</button>
+                        <button class="tab-btn" data-tab="image"><i class="fa-solid fa-image"></i> Gambar</button>
+                    </div>
+
+                    <!-- Tab Content: Color -->
+                    <div id="tabContentColor" class="tab-content hidden">
+                        <div class="color-presets">
+                            <div class="color-swatch" style="background: #ffffff;" data-color="#ffffff"></div>
+                            <div class="color-swatch" style="background: #f3f4f6;" data-color="#f3f4f6"></div>
+                            <div class="color-swatch" style="background: #3b82f6;" data-color="#3b82f6"></div>
+                            <div class="color-swatch" style="background: #10b981;" data-color="#10b981"></div>
+                            <div class="color-swatch" style="background: #ef4444;" data-color="#ef4444"></div>
+                            <div class="color-swatch" style="background: #f59e0b;" data-color="#f59e0b"></div>
+                            <div class="color-picker-wrapper">
+                                <input type="color" id="customColorPicker" value="#3b82f6">
+                                <i class="fa-solid fa-eye-dropper"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab Content: Image -->
+                    <div id="tabContentImage" class="tab-content hidden">
+                        <div class="bg-image-upload">
+                            <input type="file" id="bgImageInput" accept="image/*" hidden>
+                            <button type="button" class="btn-secondary w-full" onclick="document.getElementById('bgImageInput').click()">
+                                <i class="fa-solid fa-upload"></i> Unggah Background
+                            </button>
+                        </div>
+                        <div class="range-control mt-3">
+                            <div class="range-label"><span>Blur Background</span><span id="blurVal">0px</span></div>
+                            <input type="range" id="inputBlur" min="0" max="20" value="0">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel Efek & Posisi -->
+                <div class="control-group">
+                    <label class="group-title">Penyesuaian Objek</label>
+                    <div class="range-control">
+                        <div class="range-label"><span>Feather (Kelembutan Tepi)</span><span id="featherVal">0px</span></div>
+                        <input type="range" id="inputFeather" min="0" max="10" value="0">
+                    </div>
+                    <div class="range-control">
+                        <div class="range-label"><span>Bayangan (Shadow Effect)</span><span id="shadowVal">0%</span></div>
+                        <input type="range" id="inputShadow" min="0" max="100" value="0">
+                    </div>
+                    <div class="toggle-control mt-2">
+                        <label class="switch-label">
+                            <input type="checkbox" id="chkAutoCrop" checked>
+                            <span class="slider-switch"></span>
+                            <span>Auto Crop & Center Objek</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Ekspor & Download -->
+                <div class="control-group download-box">
+                    <label class="group-title">Ekspor Hasil</label>
+                    <div class="download-options">
+                        <button id="btnDownloadPNG" class="btn-primary"><i class="fa-solid fa-download"></i> Download PNG (Transparan)</button>
+                        <button id="btnDownloadJPG" class="btn-secondary"><i class="fa-solid fa-file-image"></i> Download JPG</button>
+                    </div>
+                    <span class="premium-badge"><i class="fa-solid fa-crown"></i> Kualitas HD Maksimal diaktifkan</span>
+                </div>
+            </aside>
+        </main>
+
+        <!-- Toast Notifications -->
+        <div id="toastContainer" class="toast-container"></div>
+    </div>
+
+    <!-- SDK AI Client-Side Background Removal -->
+    <script src="https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.5.5/dist/bundle.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
